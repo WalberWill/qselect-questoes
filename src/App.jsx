@@ -21,6 +21,7 @@ export default function App() {
   const [index, setIndex] = useState(0)
   const [resposta, setResposta] = useState(null)
   const [confirmado, setConfirmado] = useState(false)
+  const [filtroAplicado, setFiltroAplicado] = useState(false)
 
   useEffect(() => {
     async function fetchData() {
@@ -31,7 +32,7 @@ export default function App() {
     fetchData()
   }, [])
 
-  useEffect(() => {
+  const aplicarFiltro = () => {
     const r = questoes.filter(q =>
       (!filtros.banca || q.banca === filtros.banca) &&
       (!filtros.ano || q.ano === filtros.ano) &&
@@ -42,7 +43,8 @@ export default function App() {
     setIndex(0)
     setResposta(null)
     setConfirmado(false)
-  }, [filtros, questoes])
+    setFiltroAplicado(true)
+  }
 
   const atual = filtradas[index]
   const letras = ['A', 'B', 'C', 'D', 'E']
@@ -62,9 +64,9 @@ export default function App() {
   }
 
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto', padding: 20 }}>
-      <h1 style={{ textAlign: 'center' }}>🎯 QSelect - Painel do Aluno</h1>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
+    <div style={{ maxWidth: 800, margin: '0 auto', padding: 20, backgroundColor: '#fff' }}>
+      <h1 style={{ textAlign: 'center', color: '#333' }}>🎯 QSelect - Painel do Aluno</h1>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 10 }}>
         <select onChange={e => setFiltros({ ...filtros, banca: e.target.value })}>
           <option value="">Todas as Bancas</option>
           <option value="Cesgranrio">Cesgranrio</option>
@@ -98,14 +100,40 @@ export default function App() {
           <option value="Word">Word</option>
         </select>
       </div>
+      <button
+        onClick={aplicarFiltro}
+        style={{
+          backgroundColor: '#d4af37',
+          color: '#000',
+          fontWeight: 'bold',
+          padding: '10px 20px',
+          border: 'none',
+          borderRadius: 10,
+          marginBottom: 20,
+          cursor: 'pointer'
+        }}
+      >🔍 Aplicar Filtro</button>
 
-      {!atual ? (
+      {filtroAplicado && !atual && (
         <p style={{ fontWeight: 'bold' }}>Nenhuma questão com esses filtros.</p>
-      ) : (
-        <div style={{ background: '#fff', padding: 20, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+      )}
+
+      {filtroAplicado && atual && (
+        <div style={{
+          background: '#fff',
+          padding: 20,
+          borderRadius: 12,
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+          border: '1px solid #ddd'
+        }}>
           <strong style={{ display: 'block', fontSize: '1.2rem', marginBottom: 10 }}>{atual.enunciado}</strong>
           {atual.alternativas.map((alt, i) => (
-            <label key={i} style={{ display: 'block', marginBottom: 8, color: cor(i), fontWeight: confirmado && i === corretaIndex ? 'bold' : 'normal' }}>
+            <label key={i} style={{
+              display: 'block',
+              marginBottom: 8,
+              color: cor(i),
+              fontWeight: confirmado && i === corretaIndex ? 'bold' : 'normal'
+            }}>
               <input
                 type="radio"
                 name={`q_${atual.id}`}
@@ -121,7 +149,7 @@ export default function App() {
             <button
               onClick={() => setConfirmado(true)}
               disabled={resposta === null}
-              style={{ marginTop: 10, backgroundColor: '#007bff', color: '#fff', padding: '8px 16px', border: 'none', borderRadius: 8 }}
+              style={{ marginTop: 10, backgroundColor: '#d4af37', color: '#000', fontWeight: 'bold', padding: '8px 16px', border: 'none', borderRadius: 8 }}
             >Confirmar</button>
           )}
           {confirmado && (
@@ -137,7 +165,7 @@ export default function App() {
                 <div style={{ textAlign: 'right' }}>
                   <button
                     onClick={handleProxima}
-                    style={{ backgroundColor: '#28a745', color: '#fff', padding: '8px 16px', border: 'none', borderRadius: 8 }}
+                    style={{ backgroundColor: '#d4af37', color: '#000', fontWeight: 'bold', padding: '8px 16px', border: 'none', borderRadius: 8 }}
                   >Próxima questão →</button>
                 </div>
               )}
